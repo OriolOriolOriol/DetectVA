@@ -1,7 +1,13 @@
 import os
+from platform import system
 
 def Read_code_smali(path_file_dex,nome_apk):
-    path_outcome=f"C:\\Users\\claud\\OneDrive\\Desktop\\ANDROID\\Mycode\\Outcome\\{nome_apk}\\"
+    rootPath = os.getcwd()
+    if system() == 'Linux':
+        path_outcome=f"{rootPath}/Outcome/{nome_apk}/"
+    else:
+        path_outcome=f"{rootPath}\\Outcome\\{nome_apk}\\"
+        
     path_outcome1= path_outcome + f"{nome_apk}_afterCODESMALI.txt"
     intentfunc = open(path_outcome1, "w")
     with open(path_file_dex, "rU",encoding="latin1") as f:
@@ -203,5 +209,6 @@ def Read_code_smali(path_file_dex,nome_apk):
 
 
             i = i + 1
+
     print("\nStop read the code smali and creation file completed..\n")
     return path_outcome,path_outcome1

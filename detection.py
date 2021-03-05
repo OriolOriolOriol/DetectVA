@@ -1,7 +1,3 @@
-'''
-Da scrivere quando ci sono problemi con l'estrazione del manifest
-'''
-
 import os,glob,time,sys
 import colorama 
 import shutil
@@ -13,6 +9,10 @@ from read_code_smali import Read_code_smali
 from valutazione_finale import IntentTraceback
 from pathlib import Path
 
+def is_tool(name):
+    from shutil import which
+
+    return which(name) is not None
 
 
 def extractCode(newname,APKpath,APP_code,nome_apk):
@@ -30,14 +30,27 @@ def extractCode(newname,APKpath,APP_code,nome_apk):
         for i in lista_dex:
             if count == 0:
                 if system() == 'Linux':
-                    command0 = f"wine dexdump.exe -d   {i}   >  {file_code_txt}"
+                    answer=is_tool("dexdump")
+                    if answer == "False":
+                        command000=f"sudo apt install dexdump"
+                        os.system(command000)
+                        command0 = f"dexdump -d   {i}   >  {file_code_txt}"
+                    else:
+                        command0 = f"dexdump -d   {i}   >  {file_code_txt}"
                 else:
                     command0 = f"dexdump.exe -d   {i}   >  {file_code_txt}"
+
                 result0 = os.popen(command0)
                 time.sleep(20)
             else:
                 if system() == 'Linux':
-                    command1 = f"wine dexdump.exe -d   {i}   >>  {file_code_txt}"
+                    answer=is_tool("dexdump")
+                    if answer == "False":
+                        command000=f"sudo apt install dexdump"
+                        os.system(command000)
+                        command1 = f"dexdump -d   {i}   >>  {file_code_txt}"
+                    else:
+                        command1 = f"dexdump -d   {i}   >>  {file_code_txt}"
                 else:
                     command1 = f"dexdump.exe -d   {i}   >>  {file_code_txt}"
                 
@@ -59,9 +72,16 @@ def extractCode(newname,APKpath,APP_code,nome_apk):
 
 def delete_junk():
     path = os.getcwd()
-    path1=path + "\\Manifest_component_file\\*"
-    path2=path + "\\APP_code\\*"
-    path3=path + "\\APKs\\*"
+
+    if system() == 'Linux':
+        path1=path + "/Manifest_component_file/*"
+        path2=path + "/APP_code/*"
+        path3=path + "/APKs/*"
+
+    else:
+        path1=path + "\\Manifest_component_file\\*"
+        path2=path + "\\APP_code\\*"
+        path3=path + "\\APKs\\*"
     lista_pattern=[path1,path2,path3]
     for single in lista_pattern:
         fileNames = glob.glob(single)
@@ -74,11 +94,16 @@ def delete_junk():
        
 def detection():
     rootPath = os.getcwd()
-
-    APKpath = rootPath + "\\APKs\\"
-    APPCode= rootPath + "\\APP_code\\"
-    temp=rootPath + "\\StoreAPK\\"
-    manifest= rootPath + "\\Manifest_component_file\\"
+    if system() == 'Linux':
+        APKpath = rootPath + "/APKs/"
+        APPCode= rootPath + "/APP_code/"
+        temp=rootPath + "/StoreAPK/"
+        manifest= rootPath + "/Manifest_component_file/"
+    else:
+        APKpath = rootPath + "\\APKs\\"
+        APPCode= rootPath + "\\APP_code\\"
+        temp=rootPath + "\\StoreAPK\\"
+        manifest= rootPath + "\\Manifest_component_file\\"
    
    
     lunghezza=len([name for name in os.listdir(temp) if os.path.isfile(os.path.join(temp, name))])
@@ -87,7 +112,11 @@ def detection():
     for root, dirs, files in os.walk(temp):
         for apk in files:
 
-            os.system(f"copy {temp}{apk} {APKpath} ")
+            if system() == 'Linux':
+                os.system(f"cp {temp}{apk} {APKpath} ")
+            else:
+                os.system(f"copy {temp}{apk} {APKpath} ")
+
             nome_apk=apk
             print(Fore.LIGHTBLUE_EX + f"\n{count}) Starting with {nome_apk}\n")
             print(Fore.WHITE)
@@ -97,7 +126,14 @@ def detection():
             print(Fore.RED + "\n1-MANIFEST EXTRACTION & COMPONENT INFORMATION FROM APK FILE...")
             print(Fore.WHITE)
             if system() == 'Linux':
-                command = f"wine start aapt.exe l -a  {apk} >   {nome_file_aapt}"
+                answer=is_tool("aapt")
+                if answer == "False":
+                    command000=f"sudo apt install aapt"
+                    os.system(command000)
+                    command = f"aapt l -a  {apk} >   {nome_file_aapt}"
+
+                else:
+                    command = f"aapt l -a  {apk} >   {nome_file_aapt}"
             else:
                 command = f"aapt.exe l -a  {apk} >   {nome_file_aapt}"
             
@@ -148,12 +184,15 @@ def detection():
                     else:
                         print(Fore.RED +"Error: No classes.dex found..\n")
                         print(Fore.WHITE)
+                        delete_junk()
+                        sys.exit(0)
 
         
 
             else:
                 print(Fore.RED + "Manifest file extraction failed!!!\n")
                 print(Fore.WHITE)
+                delete_junk()
                 sys.exit(0)
             
             count= count + 1 
@@ -166,7 +205,11 @@ def listToString(s):
 
 #split the info of manifest and the component of apk file
 def split_manifest_component(manifest,nome_apk,path):
-    outcome=f"C:\\Users\\claud\\OneDrive\\Desktop\\ANDROID\\Mycode\\Outcome\\{nome_apk}\\"
+    rootPath = os.getcwd()
+    if system() == 'Linux':
+        outcome=f"{rootPath}/Outcome/{nome_apk}/"
+    else:
+        outcome=f"{rootPath}\\Outcome\\{nome_apk}\\"
     Path(outcome).mkdir(parents=True, exist_ok=True)
     trovato=False
     with open(manifest,"r") as file1:
@@ -183,7 +226,10 @@ def split_manifest_component(manifest,nome_apk,path):
         with open(manifest1,"w") as file3:
             file3.write(dati_finali)
         
-        os.system(f"copy {manifest1} {outcome} ")
+        if system() == 'Linux':
+            os.system(f"cp {manifest1} {outcome} ")
+        else:
+            os.system(f"copy {manifest1} {outcome} ")
         
         with open(manifest,"r") as file2:
             dati2=file2.readlines()[:linea-1]
@@ -192,8 +238,10 @@ def split_manifest_component(manifest,nome_apk,path):
         with open(components,"w") as file4:
             file4.write(dati_finali2)
         
-        
-        os.system(f"copy {components} {outcome} ")
+        if system() == 'Linux':
+            os.system(f"cp {components} {outcome} ")
+        else:
+            os.system(f"copy {components} {outcome} ")
     else:
         print("It Didn't find any manifest key in the file")
 

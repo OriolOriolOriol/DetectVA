@@ -7,28 +7,32 @@ from intent import IntentSubstitute
 
 # Determinare se lo stub Activity finale è vuoto e decidere se final = 1
 def IntentTraceback(nome_apk,file_result,file_intentfunc, file_codetxt):
-    satlist,type = IntentSubstitute(file_intentfunc)
+    satlist,tipo = IntentSubstitute(file_intentfunc)
     path_final_result= file_result + "RESULT.txt"
     with open(path_final_result,"w") as file1:
     
-        if len(satlist) > 0 and (type =="Droidplugin" or type=="droidplugin"):
-            file1.write(f"Name of APK: {nome_apk} --> Type of VA: {type}")
-            return type,1
+        if len(satlist) > 0 and (tipo =="Droidplugin" or tipo=="droidplugin"):
+            file1.write(f"Name of APK: {nome_apk} --> Type of VA: {tipo}")
+            value=1
+            return tipo,value
         
-        elif len(satlist) > 0 and (type == "replugin" or type =="Replugin"):
-            file1.write(f"Name of APK: {nome_apk} --> Type of VA: {type}")
-            return type,1
+        elif len(satlist) > 0 and (tipo == "replugin" or tipo =="Replugin"):
+            file1.write(f"Name of APK: {nome_apk} --> Type of VA: {tipo}")
+            value=1
+            return tipo,value
         
-        elif len(satlist) > 0 and (type == "virtualapp" or type=="Virtualapp"):
-            file1.write(f"Name of APK: {nome_apk} --> Type of VA: {type}")
+        elif len(satlist) > 0 and (tipo == "virtualapp" or tipo=="Virtualapp"):
+            file1.write(f"Name of APK: {nome_apk} --> Type of VA: {tipo}")
+            value=1
             #print (satlist)
             #print (type)
-            return type,1
+            return tipo,value
         
         else:
             file1.write(f"Name of APK: {nome_apk} --> NO VA")
+            value=2
             # satlist is empty
-            return 2
+            return tipo,value
 
 
     '''
